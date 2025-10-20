@@ -1,0 +1,215 @@
+--// Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+--// Kordinat CP, BaseCamp, dan Summit
+local cpCoords = {
+    Vector3.new(-396, 46, -224),   -- CP1
+    Vector3.new(445, 310, -454),   -- CP2
+    Vector3.new(389, 415, -37),    -- CP3
+    Vector3.new(230, 358, 423),    -- CP4
+    Vector3.new(-247, 546, 535),   -- CP5
+    Vector3.new(-705, 478, 469),   -- CP6
+    Vector3.new(-822, 598, -191),  -- CP7
+    Vector3.new(-1539, 682, -645), -- CP8
+    Vector3.new(-1581, 650, 448),  -- CP9
+    Vector3.new(-2563, 662, 452),  -- CP10
+}
+
+local baseCamp = Vector3.new(-2846, 852, -51)
+local summitCoords = Vector3.new(-2924, 843, 11)
+local autoSummit = false
+local delayBetweenTP = 5
+
+--// GUI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MountAhpayah"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.DisplayOrder = 999999999
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 260, 0, 330)
+Frame.Position = UDim2.new(0.5, -130, 0.5, -165)
+Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Frame.Active = true
+Frame.Draggable = true
+Frame.Parent = ScreenGui
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+
+-- Gradient
+local UIGradient = Instance.new("UIGradient", Frame)
+UIGradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 50, 160)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 100, 255))
+}
+UIGradient.Rotation = 90
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Text = "MOUNT AHPAYAH 🧗"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+Title.Parent = Frame
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 10)
+
+-- Close & Minimize
+local CloseButton = Instance.new("TextButton")
+CloseButton.Text = "X"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 18
+CloseButton.Parent = Frame
+
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Text = "_"
+MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Position = UDim2.new(1, -70, 0, 0)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+MinimizeButton.TextColor3 = Color3.new(0, 0, 0)
+MinimizeButton.Font = Enum.Font.SourceSansBold
+MinimizeButton.TextSize = 18
+MinimizeButton.Parent = Frame
+
+-- Scroll Area
+local Scroll = Instance.new("ScrollingFrame")
+Scroll.Size = UDim2.new(1, -10, 1, -70)
+Scroll.Position = UDim2.new(0, 5, 0, 35)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 800)
+Scroll.ScrollBarThickness = 6
+Scroll.Parent = Frame
+
+local UIListLayout = Instance.new("UIListLayout", Scroll)
+UIListLayout.Padding = UDim.new(0, 5)
+
+-- Label bawah
+local Note = Instance.new("TextLabel")
+Note.Text = "By NanaoGames"
+Note.Size = UDim2.new(1, 0, 0, 20)
+Note.Position = UDim2.new(0, 0, 1, -25)
+Note.BackgroundTransparency = 1
+Note.TextColor3 = Color3.fromRGB(255, 255, 255)
+Note.Font = Enum.Font.SourceSansBold
+Note.TextSize = 14
+Note.TextTransparency = 0.2
+Note.Parent = Frame
+
+-- Fungsi Teleport
+local function teleportTo(pos)
+	local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local root = char:WaitForChild("HumanoidRootPart", 3)
+	if root then root.CFrame = CFrame.new(pos) end
+end
+
+-- Tombol BaseCamp
+local BaseBtn = Instance.new("TextButton")
+BaseBtn.Text = "BaseCamp"
+BaseBtn.Size = UDim2.new(1, -10, 0, 35)
+BaseBtn.BackgroundColor3 = Color3.fromRGB(255, 180, 80)
+BaseBtn.TextColor3 = Color3.new(1,1,1)
+BaseBtn.Font = Enum.Font.SourceSansBold
+BaseBtn.TextSize = 16
+BaseBtn.Parent = Scroll
+Instance.new("UICorner", BaseBtn).CornerRadius = UDim.new(0, 8)
+BaseBtn.MouseButton1Click:Connect(function()
+	teleportTo(baseCamp)
+end)
+
+-- Tombol CP1–CP10
+for i = 1, 10 do
+	local btn = Instance.new("TextButton")
+	btn.Text = "CP " .. i
+	btn.Size = UDim2.new(1, -10, 0, 35)
+	btn.BackgroundColor3 = Color3.fromRGB(60, 120, 255)
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 16
+	btn.Parent = Scroll
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+	btn.MouseButton1Click:Connect(function()
+		teleportTo(cpCoords[i])
+	end)
+end
+
+-- Tombol Summit
+local SummitBtn = Instance.new("TextButton")
+SummitBtn.Text = "Summit TP"
+SummitBtn.Size = UDim2.new(1, -10, 0, 35)
+SummitBtn.BackgroundColor3 = Color3.fromRGB(90, 200, 255)
+SummitBtn.TextColor3 = Color3.new(1,1,1)
+SummitBtn.Font = Enum.Font.SourceSansBold
+SummitBtn.TextSize = 16
+SummitBtn.Parent = Scroll
+Instance.new("UICorner", SummitBtn).CornerRadius = UDim.new(0, 8)
+SummitBtn.MouseButton1Click:Connect(function()
+	teleportTo(summitCoords)
+end)
+
+-- Tombol Auto Summit
+local AutoSummitBtn = Instance.new("TextButton")
+AutoSummitBtn.Text = "Auto Summit: OFF"
+AutoSummitBtn.Size = UDim2.new(1, -10, 0, 35)
+AutoSummitBtn.BackgroundColor3 = Color3.fromRGB(255, 90, 90)
+AutoSummitBtn.TextColor3 = Color3.new(1,1,1)
+AutoSummitBtn.Font = Enum.Font.SourceSansBold
+AutoSummitBtn.TextSize = 16
+AutoSummitBtn.Parent = Scroll
+Instance.new("UICorner", AutoSummitBtn).CornerRadius = UDim.new(0, 8)
+
+-- Auto Summit Loop
+local running = false
+AutoSummitBtn.MouseButton1Click:Connect(function()
+	autoSummit = not autoSummit
+	if autoSummit then
+		AutoSummitBtn.Text = "Auto Summit: ON"
+		AutoSummitBtn.BackgroundColor3 = Color3.fromRGB(90, 255, 120)
+	else
+		AutoSummitBtn.Text = "Auto Summit: OFF"
+		AutoSummitBtn.BackgroundColor3 = Color3.fromRGB(255, 90, 90)
+	end
+end)
+
+task.spawn(function()
+	while task.wait(0.1) do
+		if autoSummit and not running then
+			running = true
+			teleportTo(baseCamp)
+			task.wait(2)
+			for i = 1, #cpCoords do
+				teleportTo(cpCoords[i])
+				task.wait(delayBetweenTP)
+			end
+			teleportTo(summitCoords)
+			task.wait(3)
+			teleportTo(baseCamp)
+			task.wait(2)
+			running = false
+		end
+	end
+end)
+
+-- Minimize & Close
+local minimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	if minimized then
+		Scroll.Visible = false
+		Frame.Size = UDim2.new(0, 260, 0, 35)
+	else
+		Scroll.Visible = true
+		Frame.Size = UDim2.new(0, 260, 0, 330)
+	end
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui.Enabled = false
+end)
